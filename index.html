@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MaD's Loot Lab</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.mjs"></script>
+</head>
+<body>
+  <header><a class="brand" href="./">MaD's <span>LOOT LAB</span></a><span class="badge">PROJECT ZOMBOID · BUILD 42</span></header>
+  <main>
+    <section class="intro"><p class="eyebrow">YOUR APOCALYPSE. YOUR RULES.</p><h1>Make every zombie<br>worth searching.</h1><p>Build custom loot rules for MaD's Awesome Zombie Loot.<br>Choose your drops, copy the result, and paste it into your sandbox settings.</p></section>
+    <div class="workspace">
+      <section class="panel"><div class="panel-heading"><h2>Build your rules</h2><span>01 / CONFIGURE</span></div>
+        <label for="set">Sandbox setting</label><select id="set"><option value="each">Extra Rolls (Each)</option><option value="one1">Extra Rolls (One) 1</option><option value="one2">Extra Rolls (One) 2</option><option value="one3">Extra Rolls (One) 3</option></select>
+        <p id="set-help" class="hint"></p>
+        <div id="rules"></div>
+        <button id="add" class="secondary">+ Add loot rule</button>
+      </section>
+      <aside><section class="panel output"><div class="panel-heading"><h2>Game-ready output</h2><span>02 / COPY</span></div><p id="destination"></p><label for="output">Paste this into the selected setting</label><textarea id="output" rows="7" readonly spellcheck="false"></textarea><button id="copy">Copy rules</button><p id="status" role="status" aria-live="polite"></p></section>
+        <section class="guide"><h2>From the lab to the game</h2><ol><li>Enable MaD's Awesome Zombie Loot [Build 42].</li><li>Open its sandbox settings and find the setting shown above.</li><li>Paste the copied text into that setting.</li><li>Repeat for any other rule sets you want to use.</li></ol><p>Chances are percentages: <strong>0.1 means 0.1%</strong>. The mod's loot multipliers can change the final odds.</p><p>Use exact game item IDs and outfit names. Custom and modded IDs are supported, but this tool cannot check whether they exist in your game.</p></section>
+      </aside>
+    </div>
+    <section class="panel import"><h2>Already have rules?</h2><p>Paste a rule string to replace the currently selected set. Other sets stay saved in this browser.</p><label for="import">Existing rule string</label><textarea id="import" rows="3" placeholder="Fireman:Base.Axe:0.05;Base.BaseballBat:0.2" spellcheck="false"></textarea><button id="load" class="secondary">Import into selected set</button><p id="import-status" role="status"></p></section>
+  </main>
+  <footer>MaD's Awesome Zombie Loot · Community rule builder <span>No account needed. Your rules stay in this browser when browser storage is available.</span></footer>
+  <datalist id="items"><option value="Base.Axe"><option value="Base.Crowbar"><option value="Base.BaseballBat"><option value="Base.Money"></datalist>
+  <datalist id="outfits"><option value="Fireman"><option value="Police"></datalist>
+</body>
+</html>
