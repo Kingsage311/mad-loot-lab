@@ -1,7 +1,7 @@
-import {iconPaths} from './icon-map.mjs';
+import {iconPaths} from './icon-map.mjs?v=5';
 export function itemIcon(id='') {
  const span=document.createElement('span');span.className='item-icon';span.setAttribute('aria-hidden','true');
- if(iconPaths[id]) {const image=document.createElement('img');image.src=iconPaths[id];image.alt='';image.width=32;image.height=32;span.append(image);}
- else {span.classList.add('unknown-icon');span.textContent='?';}
+ if(iconPaths[id]) {const image=document.createElement('img');image.loading='lazy';image.src=iconPaths[id];image.alt='';image.width=32;image.height=32;span.append(image);}
+ else {span.title='No standalone inventory icon available';span.classList.add('unknown-icon');span.textContent='?';}
  return span;
 }
