@@ -1,0 +1,1 @@
+Project Zomboid item sprites in assets/items are game artwork by The Indie Stone, used to identify items in this unofficial fan tool. They are not original Loot Lab artwork. No game scripts, game binaries, texture atlases, or mod files are included. Only the individual catalog thumbnails are included.

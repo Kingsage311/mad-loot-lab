@@ -1,6 +1,6 @@
 import {serialize,parse,validate} from './rules.mjs';
 import {items,outfits,makeRule,presets} from './catalog.mjs';
-import {itemIcon} from './icons.mjs';
+import {itemIcon} from './icons.mjs?v=4';
 const $=id=>document.getElementById(id);
 const names={each:'Extra Rolls (Each)',one1:'Extra Rolls (One) 1',one2:'Extra Rolls (One) 2',one3:'Extra Rolls (One) 3'};
 let sets={each:[],one1:[],one2:[],one3:[]}, active='each', storageWarning='';
@@ -36,7 +36,7 @@ function outputs(){
  document.querySelectorAll('#tabs button').forEach(b=>{b.textContent=(b.dataset.key==='each'?'Main loot list':'Random pick '+b.dataset.key.slice(-1))+` (${sets[b.dataset.key].length})`;b.setAttribute('aria-pressed',String(b.dataset.key===active));});
  $('export').disabled=Object.values(sets).some(rules=>{try{serialize(rules);return false;}catch{return true;}});
 }
-function addRules(rules){sets[active].push(...rules);render();const cards=$('rules').children;if(cards.length)cards[cards.length-rules.length].scrollIntoView({block:'nearest',behavior:'smooth'});}
+function addRules(rules){sets[active].push(...rules);render();$('rule-count').textContent=sets[active].length+' items';}
 function catalog(){
  const query=$('search').value.toLowerCase().trim(),category=$('category').value;
  const filtered=items.filter(i=>(category==='all'||i.category===category)&&`${i.name} ${i.id}`.toLowerCase().includes(query));
