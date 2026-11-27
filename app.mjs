@@ -3,6 +3,7 @@ import {items,outfits,makeRule,presets} from './catalog.mjs?v=5';
 import {itemIcon} from './icons.mjs?v=5';
 const $=id=>document.getElementById(id);
 const names={each:'Extra Rolls (Each)',one1:'Extra Rolls (One) 1',one2:'Extra Rolls (One) 2',one3:'Extra Rolls (One) 3'};
+const selectedItems=new Set();let visibleItems=[];
 let page=0, expanded=-1; const pageSize=48; const itemById=new Map(items.map(i=>[i.id,i]));
 let sets={each:[],one1:[],one2:[],one3:[]}, active='each', storageWarning='';
 try {
@@ -17,6 +18,7 @@ try {
 const itemName=id=>itemById.get(id)?.name||id||'Custom item';
 function option(value,label){const o=document.createElement('option');o.value=value;o.textContent=label;return o;}
 function outfitSelect(value,custom=true){const select=document.createElement('select');select.append(option('','All zombie outfits'),...outfits.map(o=>option(o,o.replaceAll('_',' '))));if(value&&!outfits.includes(value))select.append(option(value,value));if(custom)select.append(option('__custom','Custom outfit…'));select.value=value;return select;}
+$('bulk-outfit').replaceWith(Object.assign(outfitSelect(''),{id:'bulk-outfit'}));
 $('add-outfit').replaceWith(Object.assign(outfitSelect('',false),{id:'add-outfit'}));
 $('category').append(option('all','All categories'),...Array.from(new Set(items.map(i=>i.category))).map(c=>option(c,c)));
 function save(){try{localStorage.setItem('mad-loot-rules',JSON.stringify(sets));}catch{storageWarning='Browser saving is unavailable. Download your rules before leaving.';}}
@@ -48,17 +50,36 @@ function catalog(){
  if($('sort').value==='category')filtered.sort((a,b)=>a.category.localeCompare(b.category)||a.name.localeCompare(b.name));
  page=Math.max(0,Math.min(page,Math.ceil(filtered.length/pageSize)-1));
  $('catalog-count').textContent=filtered.length.toLocaleString()+' matches · '+items.length.toLocaleString()+' vanilla items';$('catalog-items').replaceChildren();
- for(const item of filtered.slice(page*pageSize,(page+1)*pageSize)){
+ visibleItems=filtered.slice(page*pageSize,(page+1)*pageSize);
+ for(const item of visibleItems){
   const row=document.createElement('div');row.className='catalog-item';
   const text=document.createElement('div');text.className='item-text';const name=document.createElement('b');name.textContent=item.name;const meta=document.createElement('small');meta.textContent=item.subcategory+' · '+item.id;text.append(name,meta);
-  const button=document.createElement('button');const count=sets[active].filter(r=>r.item===item.id).length;button.textContent=count?'Add again ('+count+')':'+ Add';button.setAttribute('aria-label','Add '+item.name+' ('+item.id+')');
-  button.onclick=()=>{addRules([makeRule(item.id)]);catalog();$('library-status').textContent=item.name+' added to your rules. Keep browsing or choose Done.';};
+  const button=document.createElement('input');button.type='checkbox';button.checked=selectedItems.has(item.id);button.setAttribute('aria-label','Select '+item.name+' ('+item.id+')');
+  row.classList.toggle('selected',button.checked);
+  button.onchange=()=>{if(button.checked)selectedItems.add(item.id);else selectedItems.delete(item.id);row.classList.toggle('selected',button.checked);updateSelection();};
+  row.onclick=e=>{if(e.target!==button){button.click();}};
   row.append(itemIcon(item.id),text,button);$('catalog-items').append(row);
  }
  if(!filtered.length)$('catalog-items').textContent='No items found. Try a different category or search by item ID.';
  $('page-info').textContent=filtered.length?(page*pageSize+1)+'–'+Math.min((page+1)*pageSize,filtered.length)+' of '+filtered.length.toLocaleString():'0 results';
+ updateSelection();
  $('previous').disabled=page===0;$('next').disabled=(page+1)*pageSize>=filtered.length;
 }
+function updateSelection(){
+ $('selected-count').textContent=selectedItems.size+' selected';$('add-selected').textContent='Add '+selectedItems.size+' selected item'+(selectedItems.size===1?'':'s');$('add-selected').disabled=!selectedItems.size;$('clear-selection').disabled=!selectedItems.size;$('select-page').disabled=!visibleItems.length;
+}
+$('select-page').onclick=()=>{visibleItems.forEach(i=>selectedItems.add(i.id));catalog();};
+$('clear-selection').onclick=()=>{selectedItems.clear();catalog();};
+$('bulk-outfit').onchange=()=>{$('bulk-custom-outfit').hidden=$('bulk-outfit').value!=='__custom';};
+$('add-selected').onclick=()=>{
+ try{
+  const outfit=$('bulk-outfit').value==='__custom'?$('bulk-custom-outfit').value.trim():$('bulk-outfit').value;
+  if($('bulk-outfit').value==='__custom'&&!outfit)throw Error('Enter the exact zombie outfit name.');
+  const rules=Array.from(selectedItems,id=>makeRule(id,$('bulk-chance').value,outfit));rules.forEach(validate);
+  if(!rules.length)return;
+  addRules(rules);selectedItems.clear();catalog();$('bulk-error').textContent='';$('library-status').textContent='Added '+rules.length+' items at '+$('bulk-chance').value+'% for '+(outfit||'all zombie outfits')+'.';
+ }catch(error){$('bulk-error').textContent=error.message;}
+};
 function render(){
  $('set-title').textContent=names[active];$('set-mode').textContent=active==='each'?'INDEPENDENT DROPS':'RANDOM PICK POOL';
  $('set-help').textContent=active==='each'?'Each item gets its own chance to appear on a zombie.':'Random pick '+active.slice(-1)+': one matching item is chosen, then its drop chance is rolled.';
